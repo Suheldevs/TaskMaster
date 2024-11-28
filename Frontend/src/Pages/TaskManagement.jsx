@@ -20,20 +20,22 @@ function TaskManagement() {
 
 const location = useLocation();
 const userLoginData = location.state || {};
-
   // Fetch tasks
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(`${backendURL}/tasks/get?email=mohdsuhel.dev@gmail.com`);
+        const response = await axios.get(`${backendURL}/tasks/get`, {
+            params: { email: userLoginData.email },
+          });
         setTasks(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
     };
 
     fetchTasks();
-  }, []);
+  }, [userLoginData.email]);
 
   // Handle form submission for creating tasks
   const handleFormSubmit = async (e) => {
@@ -41,6 +43,7 @@ const userLoginData = location.state || {};
     setLoading(true);
 
     try {
+     setFormData((prev) => ({ ...prev, email: userLoginData.email}));
       const response = await axios.post(`${backendURL}/tasks/post`, formData);
       setTasks((prev) => [...prev, response.data]); // Add new task to the list
       setFormData({ title: '', description: '', category: 'Other', email: '' }); // Reset form
@@ -54,7 +57,7 @@ const userLoginData = location.state || {};
 
   // Handle task deletion
   const handleDelete = async (taskId) => {
-    const deleteTaskData = { email: 'mohdsuhel.dev@gmail.com', taskId: taskId };
+    const deleteTaskData = { email: `${userLoginData.email}`, taskId: taskId };
   
     try {
       // Send the DELETE request with query parameters
@@ -77,6 +80,7 @@ const userLoginData = location.state || {};
     
     // Ensure formData contains the correct taskId
     try {
+        setFormData((prev) => ({ ...prev, email:userLoginData.email  }))
       const response = await axios.put(`${backendURL}/tasks/update/${formData.id}`, formData);
       console.log(response);
       setTasks(tasks.map(task => (task._id === editTask._id ? response.data : task))); // Update task in the state
@@ -110,7 +114,7 @@ const userLoginData = location.state || {};
 
         {/* Task Items */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {tasks.map((task) => (
+          {tasks.length > 0  ? (tasks.map((task) => (
             <div
               key={task._id}
               className="p-4 bg-white rounded-md shadow-md border border-gray-200"
@@ -149,7 +153,7 @@ const userLoginData = location.state || {};
                 </button>
               </div>
             </div>
-          ))}
+          ))):(<p>No task</p>)}
         </div>
       </main>
 
@@ -202,18 +206,7 @@ const userLoginData = location.state || {};
                   <option value="Other">Other</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-gray-700 font-medium">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-purple-500 focus:border-purple-500"
-                />
-              </div>
+             
               <button
                 type="submit"
                 className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600 disabled:bg-gray-400"
@@ -274,18 +267,6 @@ const userLoginData = location.state || {};
                   <option value="Urgent">Urgent</option>
                   <option value="Other">Other</option>
                 </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-purple-500 focus:border-purple-500"
-                />
               </div>
               <button
                 type="submit"

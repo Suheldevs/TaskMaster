@@ -37,6 +37,7 @@ function LogIn() {
         title: `${res.data.message}`,
         icon: "success"
       });
+      console.log(res.data.userData);
       navigate('/task', { state:res.data.userData});
 
     }
