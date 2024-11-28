@@ -1,8 +1,11 @@
 import React from 'react'
+import TaskManagement from './TaskManagement'
 
 function Main() {
   return (
-    <div>Main</div>
+    <div>
+        <TaskManagement/>
+    </div>
   )
 }
 

@@ -37,7 +37,7 @@ function LogIn() {
         title: `${res.data.message}`,
         icon: "success"
       });
-      navigate('/task', { state: { userData: res.data.userData } });
+      navigate('/task', { state:res.data.userData});
 
     }
     catch (err) {
