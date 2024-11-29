@@ -215,7 +215,7 @@ const userLoginData = location.state || {};
 <Dropdown.Item onClick={()=>handleFilterData('Pending')}>Pending</Dropdown.Item>
   </Dropdown>
 
-<div className='flex gap-4 justify-center items-center ms-10 font-semibold'>
+<div className='flex gap-2  items-center font-semibold lg:items-center justify-center '>
   <input type='checkbox' onChange={()=>handleFilterData('')} checked/> All
   <input type='checkbox' onChange={()=>handleFilterData('Personal')}/> Personal
   <input type='checkbox' onChange={()=>handleFilterData('Work')}/> Work
