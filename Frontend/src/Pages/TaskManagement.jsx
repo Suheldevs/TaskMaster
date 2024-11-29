@@ -4,6 +4,9 @@ import axios from 'axios';
 import { FaTrashAlt, FaEdit } from 'react-icons/fa'; // Import icons
 import { useLocation } from 'react-router-dom';
 import { Dropdown, Spinner } from 'flowbite-react';
+
+import { toast, ToastContainer } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 function TaskManagement() {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,22 +27,22 @@ const [filterData,setFilterData] = useState([])
 const location = useLocation();
 const userLoginData = location.state || {};
   // Fetch tasks
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${backendURL}/tasks/get`, {
+        params: { email: userLoginData.email },
+      });
+      setTasks(response.data);
+      setFilterData(response.data);
+      setLoading(false);
+      console.log(response.data);
+    } catch (error) {
+      setLoading(false);
+      console.error('Error fetching tasks:', error);
+    }
+  };
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${backendURL}/tasks/get`, {
-          params: { email: userLoginData.email },
-        });
-        setTasks(response.data);
-        setFilterData(response.data);
-        setLoading(false);
-        console.log(response.data);
-      } catch (error) {
-        setLoading(false);
-        console.error('Error fetching tasks:', error);
-      }
-    };
 
     fetchTasks();
 
@@ -49,19 +52,46 @@ const userLoginData = location.state || {};
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
-     setFormData((prev) => ({ ...prev, email: userLoginData.email}));
-      const response = await axios.post(`${backendURL}/tasks/post`, formData);
-      setTasks((prev) => [...prev, response.data]); // Add new task to the list
-      setFormData({ title: '', description: '', category: 'Other', email: '' }); // Reset form
+      const dataToSubmit = {
+        ...formData,
+        email: userLoginData.email, 
+      };
+      const response = await axios.post(`${backendURL}/tasks/post`, dataToSubmit);
+      console.log(response)
+      setTasks((prev) => [...prev, response.data]); // Add new task to the task list
+      setFormData({ title: '', description: '', category: 'Other', status: 'Pending' }); // Reset form
       setIsModalOpen(false);
-      setLoading(false);
+      fetchTasks();
+
+ // Show success toast
+ toast.success('Task added successfully!', {
+  position: "top-right", // Position of the toast
+  autoClose: 5000, // Duration in ms
+  hideProgressBar: false, // Whether to hide progress bar
+  closeOnClick: true, // Close when clicked
+  pauseOnHover: true, // Pause on hover
+  draggable: true, // Allow dragging
+  progress: undefined,
+});
+
     } catch (error) {
       console.error('Error adding task:', error);
+      toast.error('Failed to add task. Please try again.', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } finally {
       setLoading(false);
     }
   };
+  
 
   // Handle task deletion
   const handleDelete = async (taskId) => {
@@ -72,11 +102,30 @@ const userLoginData = location.state || {};
       await axios.delete(`${backendURL}/tasks/delete`, {
         params: deleteTaskData, // Add data as query parameters
       });
-  
+      fetchTasks();
       // Update the state by filtering out the deleted task
-      setTasks(tasks.filter(task => task._id !== taskId));
-    } catch (error) {
-      console.error('Error deleting task:', error);
+      // Show success toas
+      toast.success('Task deleted successfully!', {
+        position: "top-right", // Position of the toast
+      autoClose: 5000, // Duration in ms
+      hideProgressBar: false, // Whether to hide progress bar
+      closeOnClick: true, // Close when clicked
+      pauseOnHover: true, // Pause on hover
+      draggable: true, // Allow dragging
+      progress: undefined,
+    });
+    
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    toast.error('Failed to delete task. Please try again.', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
     }
   };
   
@@ -94,9 +143,28 @@ const userLoginData = location.state || {};
       setTasks(tasks.map(task => (task._id === editTask._id ? response.data : task))); // Update task in the state
       setIsEditModalOpen(false); // Close modal after edit
       setLoading(false);
+       // Show success toast
+    toast.success('Task edited successfully!', {
+      position: "top-right", // Position of the toast
+      autoClose: 5000, // Duration in ms
+      hideProgressBar: false, // Whether to hide progress bar
+      closeOnClick: true, // Close when clicked
+      pauseOnHover: true, // Pause on hover
+      draggable: true, // Allow dragging
+      progress: undefined,
+    });
     } catch (error) {
       console.error('Error updating task:', error);
       setLoading(false);
+      toast.error('Failed to add task. Please try again.', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
   
@@ -121,7 +189,7 @@ const userLoginData = location.state || {};
   return (
     <div className="min-h-[90vh] bg-gray-100">
       {/* Header */}
-    
+      <ToastContainer />
 
       {/* Task List */}
       <main className="container mx-auto py-6">

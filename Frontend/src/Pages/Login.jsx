@@ -31,7 +31,7 @@ function LogIn() {
 
     try {
       setLoading(true)
-      const res = await axios.post('http://localhost:3000/users/login', obj);
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/login`, obj);
       setLoading(false);
       Swal.fire({
         title: `${res.data.message}`,
@@ -68,7 +68,7 @@ function LogIn() {
             <Button className='w-full mt-2' gradientDuoTone='purpleToBlue' type='submit' disabled={loading}>{loading?(<><Spinner size={'sm'}/> Loading...</>):(' LOGN IN')}</Button>
           </div>
           <div className=''>
-            <span>Don't have an account? </span> <span className='text-blue-800 hover:text-blue-500'><Link to='/signin'> sign In </Link></span>
+            <span>Don't have an account? </span> <span className='text-blue-800 hover:text-blue-500'><Link to='/'> sign In </Link></span>
           </div>
         </form>
       </div>

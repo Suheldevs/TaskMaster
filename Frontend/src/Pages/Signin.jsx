@@ -36,7 +36,7 @@ function SignIn() {
     const obj = Object.fromEntries(formData.entries());
     try {
     setLoading(true)
-      const res = await axios.post('http://localhost:3000/users/signin', obj);
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/signin`, obj);
       setLoading(false);
       console.log(res);
       Swal.fire({

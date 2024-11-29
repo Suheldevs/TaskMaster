@@ -11,7 +11,7 @@ function App() {
         <Routes>
           <Route path="/task" element={<Main />} />
           <Route path="/login" element={<Login />} /> 
-          <Route path="/signin" element={<Signin />} />
+          <Route path="/" element={<Signin />} />
         </Routes>
     </Router>
   );
