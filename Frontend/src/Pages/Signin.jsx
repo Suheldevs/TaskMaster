@@ -54,7 +54,7 @@ function SignIn() {
   }
   return (
     <>
-      <div className=' w-screen flex items-center justify-center min-h-[90vh] bg-slate-100 '>
+      <div className=' w-screen flex items-center justify-center min-h-[90vh] lg:px-0 px-2 bg-slate-100 '>
         <form className=' rounded-lg shadow-xl bg-white w-96 p-3 flex flex-col gap-3 ' onSubmit={handleSubmit}>
           <div className='text-center text-2xl  '>SIGN IN</div>
           {error ? 
