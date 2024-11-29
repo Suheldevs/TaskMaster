@@ -3,16 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Login';
 import Signin from './Pages/Signin';
 import Main from './Pages/Main';
+import Header from './components/Header';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <Header/>
         <Routes>
           <Route path="/task" element={<Main />} />
           <Route path="/login" element={<Login />} /> 
           <Route path="/signin" element={<Signin />} />
         </Routes>
-      </div>
     </Router>
   );
 }

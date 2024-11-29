@@ -65,7 +65,7 @@ function LogIn() {
             <TextInput type='password' name='password' required />
           </div>
           <div>
-            <Button className='w-full mt-2' gradientDuoTone='purpleToBlue' type='submit'>{loading?(<><Spinner size={'sm'}/> Loading...</>):(' LOGN IN')}</Button>
+            <Button className='w-full mt-2' gradientDuoTone='purpleToBlue' type='submit' disabled={loading}>{loading?(<><Spinner size={'sm'}/> Loading...</>):(' LOGN IN')}</Button>
           </div>
           <div className=''>
             <span>Don't have an account? </span> <span className='text-blue-800 hover:text-blue-500'><Link to='/signin'> sign In </Link></span>

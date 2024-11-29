@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from '@headlessui/react';
+import { Button, Dialog } from '@headlessui/react';
 import axios from 'axios';
 import { FaTrashAlt, FaEdit } from 'react-icons/fa'; // Import icons
 import { useLocation } from 'react-router-dom';
+import { Dropdown, Spinner } from 'flowbite-react';
 function TaskManagement() {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    status:'Pending',
     category: 'Other',
     email: '',
   });
   const [loading, setLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // To handle the edit modal
   const [editTask, setEditTask] = useState(null); // Store the task to be updated
-
+const [statusFilter,setStatusFilter] = useState('')
+const [filterData,setFilterData] = useState([])
   const backendURL = import.meta.env.VITE_BACKEND_URL; // Adjust your backend URL
 
 const location = useLocation();
@@ -24,17 +27,22 @@ const userLoginData = location.state || {};
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${backendURL}/tasks/get`, {
-            params: { email: userLoginData.email },
-          });
+          params: { email: userLoginData.email },
+        });
         setTasks(response.data);
+        setFilterData(response.data);
+        setLoading(false);
         console.log(response.data);
       } catch (error) {
+        setLoading(false);
         console.error('Error fetching tasks:', error);
       }
     };
 
     fetchTasks();
+
   }, [userLoginData.email]);
 
   // Handle form submission for creating tasks
@@ -93,40 +101,77 @@ const userLoginData = location.state || {};
   };
   
 
+  const handleFilterData = (statusType)=>{
+    setStatusFilter(statusType);
+    if(statusType == ''){
+      const filterData = tasks.filter((item)=>(item));
+      setFilterData(filterData);
+     
+    }
+    else{
+    console.log(statusType);
+    const filterData = tasks.filter((item)=>(item.status == statusType || item.category == statusType));
+    console.log(filterData);
+    setFilterData(filterData)
+    }
+  }
+
+
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-[90vh] bg-gray-100">
       {/* Header */}
-      <header className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4">
-        <h1 className="text-2xl font-semibold text-center">Task Management</h1>
-      </header>
+    
 
       {/* Task List */}
       <main className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Tasks</h2>
+        <div className="flex justify-between items-center mb-4 px-4">
+          <h2 className="text-xl font-bold"><span>{userLoginData.Username}'s </span>Tasks</h2>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600"
           >
-            Add Task
+            Add New Task
           </button>
         </div>
+        {tasks?(<>
+          <div className='px-4 flex items-center gap-4 flex-col lg:flex-row '> 
+  <div className='text-lg font-bold'>Filters </div>
+  <Dropdown
+  label={'Status'}
+  color='purple'
+  >
+<Dropdown.Item onClick={()=>handleFilterData('')}>All</Dropdown.Item>
+<Dropdown.Item onClick={()=>handleFilterData('Completed')}>Completed</Dropdown.Item>
+<Dropdown.Item onClick={()=>handleFilterData('In Progress')}>In Progress</Dropdown.Item>
+<Dropdown.Item onClick={()=>handleFilterData('Pending')}>Pending</Dropdown.Item>
+  </Dropdown>
+
+<div className='flex gap-4 justify-center items-center ms-10 font-semibold'>
+  <input type='checkbox' onChange={()=>handleFilterData('')} checked/> All
+  <input type='checkbox' onChange={()=>handleFilterData('Personal')}/> Personal
+  <input type='checkbox' onChange={()=>handleFilterData('Work')}/> Work
+  <input type='checkbox' onChange={()=>handleFilterData('Urgent')}/> Urgent
+  <input type='checkbox' onChange={()=>handleFilterData('Other')}/> Other
+</div>
+</div>
+        </>):''}
 
         {/* Task Items */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {tasks.length > 0  ? (tasks.map((task) => (
+        <div className="grid gap-4 lg:px-0 px-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+          {filterData.length > 0  ? (filterData.map((task) => (
             <div
               key={task._id}
               className="p-4 bg-white rounded-md shadow-md border border-gray-200"
             >
-              <h3 className="text-lg font-semibold">{task.title}</h3>
-              <p className="text-sm text-gray-600">{task.description}</p>
+              <h3 className="text-lg font-semibold text-center">{task.title}</h3>
+              <p className="text-sm text-gray-600 overflow-hidden text-ellipsis text-nowrap max-h-6">{task.description}</p>
               <div className="mt-2">
-                <span className="text-xs font-medium text-purple-600">
-                  Category: {task.category}
+                <span className=" font-medium  text-purple-500">
+                <span className='text-purple-600'>Category: </span>{task.category}
                 </span>
               </div>
-              <div className="mt-2 text-sm text-gray-500">Assigned to: {task.email}</div>
+              <div className="mt-2 text-sm "><span className='bg-purple-500 text-white p-1 me-1 font-medium rounded'>Status :</span> {task.status}</div>
               {/* Action Icons */}
               <div className="flex justify-between mt-4">
                 <button
@@ -137,23 +182,29 @@ const userLoginData = location.state || {};
                       description: task.description,
                       category: task.category,
                       email: task.email,
+                      status:task.status,
                       id:task._id,
                     });
                     setIsEditModalOpen(true);
                   }}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-purple-600 hover:text-purple-700"
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(task._id)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500  hover:text-red-700"
                 >
-                  <FaTrashAlt />
+                <FaTrashAlt />
                 </button>
               </div>
             </div>
-          ))):(<p>No task</p>)}
+          ))):(<div className='min-h-[80vh] flex  w-full  justify-center items-center text-2xl font-bold '>{loading ? (<><Spinner size={'xl'} color='purple'/> &nbsp; Loading tasks..</>):(<>No task yet! &nbsp; <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600"
+          >
+            Add Task
+          </button> </>)} </div>)}
         </div>
       </main>
 
@@ -266,6 +317,20 @@ const userLoginData = location.state || {};
                   <option value="Personal">Personal</option>
                   <option value="Urgent">Urgent</option>
                   <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, status: e.target.value }))
+                  }
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-purple-500 focus:border-purple-500"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
                 </select>
               </div>
               <button
